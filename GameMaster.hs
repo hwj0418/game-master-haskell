@@ -42,9 +42,9 @@ instance Functor FreeGameMaster where
 
 instance Applicative FreeGameMaster where
     -- pure :: a -> FreeGameMaster a
-    pure = return
+    -- pure a = Pure a
     -- If you are confident with your Monad instance, you can just write
-    -- pure = return
+    pure = return
 
     -- (<*>) :: FreeGameMaster (a -> b) -> FreeGameMaster a -> FreeGameMaster b
     -- func <*> fgm = do
@@ -59,16 +59,14 @@ instance Monad FreeGameMaster where
     return a = Pure a
     -- (>>=) :: FreeGameMaster a -> (a -> FreeGameMaster b) -> (FreeGameMaster b)
     Pure a >>= f = f a
-    GMAction lb ub req >>= f = do
-        next <- GMAction lb ub (\msg -> req msg)
-        f next 
+    GMAction lb ub req >>= f = 
+        GMAction lb ub (\msg -> do
+            a <- req msg
+            f a)
 
 instance MonadGameMaster FreeGameMaster where
     -- gmAction :: Integer -> Integer -> FreeGameMaster PlayerMsg
-    gmAction lb ub = do
-        a <- (GMAction lb ub (\msg -> Pure msg))
-        return a
-
+    gmAction lb ub = GMAction lb ub (\req -> return req)
 
 -- Question 3.
 
