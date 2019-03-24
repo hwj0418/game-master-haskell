@@ -66,9 +66,8 @@ instance Monad FreeGameMaster where
 instance MonadGameMaster FreeGameMaster where
     -- gmAction :: Integer -> Integer -> FreeGameMaster PlayerMsg
     gmAction lb ub = do
-        req <- Pure Surrender
-        return req
-        
+        a <- (GMAction lb ub (\msg -> Pure msg))
+        return a
 
 
 -- Question 3.
