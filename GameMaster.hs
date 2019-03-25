@@ -70,20 +70,20 @@ instance MonadGameMaster FreeGameMaster where
 
 -- Question 3.
 
-testGame :: (Integer -> FreeGameMaster Ending) -> Bool
-testGame = error "TODO"
+testPureWin :: Maybe (FreeGameMaster Ending) -> Maybe Ending
+testPureWin action =
+    case action of
+        Just (Pure Win) -> Just (Win)
+        otherwise -> Nothing
 
-testPureWin :: (PlayMsg a -> FreeGameMaster Ending) -> Integer -> Maybe Ending
-testPureWin game secret = case game (Guess secret) of
-    Pure Win -> Just Win
-    otherwise -> Nothing
+testPureLose :: Maybe (FreeGameMaster Ending) -> Integer -> Maybe Ending
+testPureLose action secret =
+    case action of
+        Just (Pure (Lose n)) -> if (n == secret) then Just (Lose n) else Nothing
+        otherwise -> Nothing
 
-testPureLose :: (PlayMsg a -> FreeGameMaster Ending) -> Integer -> Maybe Ending
-testPureLose game secret = case game (Surrender) of
-    Pure (Lose n) -> if n == secret then (Just (Lose n)) else Nothing
-    otherwise -> Nothing
-
-gmActionChecker input lo hi =
-    case input of
-        GMAction lo1 hi1 nextState -> if (lo == lo1 && hi1 == hi) then Just (nextState) else Nothing
-        otherwise Nothing
+testGMAction :: Maybe (FreeGameMaster Ending) -> Integer -> Integer -> Maybe (PlayerMsg -> FreeGameMaster Ending)
+testGMAction action lo hi =
+    case action of
+        Just (GMAction lo1 hi1 nextState) -> if (lo == lo1 && hi == hi1) then Just (nextState) else Nothing
+        otherwise -> Nothing
