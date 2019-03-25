@@ -70,6 +70,21 @@ instance MonadGameMaster FreeGameMaster where
 
 -- Question 3.
 
+-- testGame :: (Integer -> FreeGameMaster Ending) -> Bool 
+-- testGame game = do
+--     f1 <- testBound 1 100 game
+--     testWin (f1 (Guess secret))
+--     testLose (f1 (Surrender))
+--     f2 <- testBound 11 100 (f1 (Guess 10)) 
+
+testGame :: (Integer -> FreeGameMaster Ending) -> Bool
+testGame secret action =
+    case testPureLose (gmAction 1 100) secret of
+        Just (Lose n) -> case testPureWin (gmAction 1 100) secret of
+            Just (Pure Win) -> True
+            Nothing -> False 
+        Nothing -> False
+
 testPureWin :: Maybe (FreeGameMaster Ending) -> Maybe Ending
 testPureWin action =
     case action of
