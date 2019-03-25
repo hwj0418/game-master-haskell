@@ -172,7 +172,7 @@ testsQ3 = [ "Q3: goofy" ~: testGame (\_ -> goofy) ~?= False
 -- Putting all tests together
 -----------------------------
 
-tests = testsQ2 -- ++ testsQ3 ++ testsQ1
+tests = testsQ2 ++ testsQ3 ++ testsQ1
 
 main = do
     args <- getArgs

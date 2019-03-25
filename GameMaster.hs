@@ -70,5 +70,35 @@ instance MonadGameMaster FreeGameMaster where
 
 -- Question 3.
 
+-- testGame :: (Integer -> FreeGameMaster Ending) -> Bool
+-- testGame game = do
+--     f1 <- testBound 1 100 game
+--     testWin (f1 (Guess secret)) 
+--     testLose (f1 (Surrender))
+--     f2 <- testBound 11 100 (f1 (Guess 10))
+
 testGame :: (Integer -> FreeGameMaster Ending) -> Bool
-testGame = error "TODO"
+testGame secret = 
+    case testPureLose (gmAction 1 100) secret of
+        Just (Lose n) -> case testPureWin (gmAction 1 100) secret of
+            Just Win -> True
+            Nothing -> False
+        Nothing -> False
+
+testWin :: (PlayerMsg -> FreeGameMaster Ending) -> Integer-> Maybe (FreeGameMaster Ending)
+testWin game secret = case game (Guess secret) of 
+    Pure Win -> Just (return Win)
+    otherwise -> Nothing 
+
+testLose :: (PlayerMsg -> FreeGameMaster Ending) -> Integer -> Maybe (FreeGameMaster Ending)
+testLose game secret = case game (Surrender) of 
+    Pure (Lose n) -> if n == secret then (Just (return (Lose n))) else Nothing
+    otherwise -> Nothing 
+
+testBound :: FreeGameMaster Ending -> Integer -> Integer -> Maybe (PlayerMsg -> FreeGameMaster Ending)
+testBound input lo hi = case input of
+    GMAction lo1 hi1 nextState -> 
+        if (lo == lo1 && hi1 == hi)
+            then Just nextState
+            else Nothing
+    otherwise -> Nothing
