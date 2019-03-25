@@ -70,35 +70,25 @@ instance MonadGameMaster FreeGameMaster where
 
 -- Question 3.
 
--- testGame :: (Integer -> FreeGameMaster Ending) -> Bool 
--- testGame game = do
---     f1 <- testBound 1 100 game
---     testWin (f1 (Guess secret))
---     testLose (f1 (Surrender))
---     f2 <- testBound 11 100 (f1 (Guess 10)) 
-
 testGame :: (Integer -> FreeGameMaster Ending) -> Bool
-testGame secret action =
-    case testPureLose (gmAction 1 100) secret of
-        Just (Lose n) -> case testPureWin (gmAction 1 100) secret of
-            Just (Pure Win) -> True
-            Nothing -> False 
-        Nothing -> False
+testGame testGame game = passTestCase1 && passTestCase2 && passTestCase3
+  where
+    passTestCase1 = isJust ()
 
-testPureWin :: Maybe (FreeGameMaster Ending) -> Maybe Ending
+testPureWin :: (FreeGameMaster Ending) -> Maybe Ending
 testPureWin action =
     case action of
-        Just (Pure Win) -> Just (Win)
+        (Pure Win) -> Just Win
         otherwise -> Nothing
 
-testPureLose :: Maybe (FreeGameMaster Ending) -> Integer -> Maybe Ending
+testPureLose :: (FreeGameMaster Ending) -> Integer -> Maybe Ending
 testPureLose action secret =
     case action of
-        Just (Pure (Lose n)) -> if (n == secret) then Just (Lose n) else Nothing
+        (Pure (Lose n)) -> if (n == secret) then Just (Lose n) else Nothing
         otherwise -> Nothing
 
 testGMAction :: Maybe (FreeGameMaster Ending) -> Integer -> Integer -> Maybe (PlayerMsg -> FreeGameMaster Ending)
 testGMAction action lo hi =
     case action of
-        Just (GMAction lo1 hi1 nextState) -> if (lo == lo1 && hi == hi1) then Just (nextState) else Nothing
+        (GMAction lo1 hi1 nextState) -> if (lo == lo1 && hi == hi1) then Just (nextState) else Nothing
         otherwise -> Nothing
