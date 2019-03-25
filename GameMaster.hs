@@ -1,7 +1,7 @@
 module GameMaster where
 
 import Control.Monad (ap, liftM)
-
+import Data.Maybe
 import GameMasterDef
 
 -- Question 1.
@@ -70,25 +70,38 @@ instance MonadGameMaster FreeGameMaster where
 
 -- Question 3.
 
+-- testGame :: (Integer -> FreeGameMaster Ending) -> Bool
+-- testGame game = do
+--     f1 <- testBound game 1 100
+--     testWin (f1 (Guess secret)) 
+--     testLose (f1 (Surrender))
+--     f2 <- testBound 11 100 (f1 (Guess 10))
+
 testGame :: (Integer -> FreeGameMaster Ending) -> Bool
-testGame testGame game = passTestCase1 && passTestCase2 && passTestCase3
-  where
-    passTestCase1 = isJust ()
+testGame game = isJust (testHelper (game 45))
 
-testPureWin :: (FreeGameMaster Ending) -> Maybe Ending
-testPureWin action =
-    case action of
-        (Pure Win) -> Just Win
+
+testHelper game = do
+    f1 <- testBound game 1 100
+    testLose (f1 Surrender) 45
+    testWin (f1 (Guess 45))
+    f2 <- testBound (f1 (Guess 20)) 21 100
+    f3 <- testBound (f2 (Guess 18)) 21 100
+    return game
+
+testWin :: FreeGameMaster Ending -> Maybe Ending
+testWin game = 
+    case game of
+        Pure result -> if result == Win then Just result else Nothing
         otherwise -> Nothing
 
-testPureLose :: (FreeGameMaster Ending) -> Integer -> Maybe Ending
-testPureLose action secret =
-    case action of
-        (Pure (Lose n)) -> if (n == secret) then Just (Lose n) else Nothing
+testLose :: FreeGameMaster Ending -> Integer -> Maybe Ending
+testLose game secret = 
+    case game of
+        Pure result -> if result == (Lose secret) then Just result else Nothing
         otherwise -> Nothing
 
-testGMAction :: Maybe (FreeGameMaster Ending) -> Integer -> Integer -> Maybe (PlayerMsg -> FreeGameMaster Ending)
-testGMAction action lo hi =
-    case action of
-        (GMAction lo1 hi1 nextState) -> if (lo == lo1 && hi == hi1) then Just (nextState) else Nothing
-        otherwise -> Nothing
+testBound :: FreeGameMaster Ending -> Integer -> Integer -> Maybe (PlayerMsg -> FreeGameMaster Ending)
+testBound game lo hi = case game of
+    GMAction lb ub next -> if (lb == lo) && (ub == hi) then Just next else Nothing
+    otherwise -> Nothing
