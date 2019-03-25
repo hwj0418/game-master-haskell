@@ -70,24 +70,15 @@ instance MonadGameMaster FreeGameMaster where
 
 -- Question 3.
 
--- testGame :: (Integer -> FreeGameMaster Ending) -> Bool
--- testGame game = do
---     f1 <- testBound game 1 100
---     testWin (f1 (Guess secret)) 
---     testLose (f1 (Surrender))
---     f2 <- testBound 11 100 (f1 (Guess 10))
-
 testGame :: (Integer -> FreeGameMaster Ending) -> Bool
 testGame game = isJust (testHelper (game 45))
 
-
 testHelper game = do
     f1 <- testBound game 1 100
-    testLose (f1 Surrender) 45
-    testWin (f1 (Guess 45))
     f2 <- testBound (f1 (Guess 20)) 21 100
     f3 <- testBound (f2 (Guess 18)) 21 100
-    return game
+    testLose (f1 Surrender) 45
+    testWin (f1 (Guess 45))
 
 testWin :: FreeGameMaster Ending -> Maybe Ending
 testWin game = 
