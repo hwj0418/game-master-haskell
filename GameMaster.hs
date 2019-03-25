@@ -83,7 +83,7 @@ testPureLose game secret = case game (Surrender) of
     Pure (Lose n) -> if n == secret then (Just (Lose n)) else Nothing
     otherwise -> Nothing
 
-gnActionChecker input lo hi =
+gmActionChecker input lo hi =
     case input of
         GMAction lo1 hi1 nextState -> if (lo == lo1 && hi1 == hi) then Just (nextState) else Nothing
         otherwise Nothing
